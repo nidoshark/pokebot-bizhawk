@@ -270,9 +270,12 @@ def find_image(file: str): # Function to find an image in a BizHawk screenshot
 
 def catch_pokemon(): # Function to catch pokemon
     try:
+        release_all_inputs()
+
+        # Press B + up + left until FIGHT menu is visible
         while not find_image("battle/fight.png"):
             release_all_inputs()
-            emu_combo(["B", "Up", "Left"]) # Press B + up + left until FIGHT menu is visible
+            emu_combo(["B", "Up", "Left"])
         
         if config["manual_catch"]:
             input("Pausing bot for manual catch (don't forget to pause pokebot.lua script so you can provide inputs). Press Enter to continue...")
@@ -280,7 +283,8 @@ def catch_pokemon(): # Function to catch pokemon
         else:
             debug_log.info("Attempting to catch Pokemon...")
         
-        if config["use_spore"]: # Use Spore to put opponent to sleep to make catches much easier
+        if config["use_spore"]: 
+            # Sleep increases catch rate
             debug_log.info("Attempting to sleep the opponent...")
             i, spore_pp = 0, 0
             
@@ -308,12 +312,14 @@ def catch_pokemon(): # Function to catch pokemon
             elif not can_spore:
                 debug_log.info(f"Can't sleep the opponent! Ability is {ability}")
 
-            while not find_image("battle/bag.png"): 
-                release_all_inputs()
-                emu_combo(["B", "Up", "Right"]) # Press B + up + right until BAG menu is visible
+        # Press B + up + right until BAG menu is visible
+        while not find_image("battle/bag.png"): 
+            release_all_inputs()
+            emu_combo(["B", "Up", "Right"])
 
         while True:
-            if find_image("battle/bag.png"): press_button("A")
+            if find_image("battle/bag.png"): 
+                press_button("A")
 
             # TODO Safari Zone
             #if opponent_info["metLocationName"] == "Safari Zone":
@@ -360,9 +366,6 @@ def catch_pokemon(): # Function to catch pokemon
                     save_game()
                 
                 return True
-
-            if trainer_info["state"] == GameState.OVERWORLD:
-                return False
     except Exception as e:
         if args.di: debug_log.exception(str(e))
         return False
