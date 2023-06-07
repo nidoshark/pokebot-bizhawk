@@ -83,35 +83,184 @@
                 <!-- Container-fluid -->
                 <div class="container-fluid">
                     <!-- Row (equally spaced on large screens and up) -->
-                    <div class="row row-eq-spacing-lg">
-                        <div class="col">
-                            <div class="content">
-                                <div class="container-fluid">
-                                    <div class="row justify-content-between">
-                                        <div class="col-10">
-                                            <div class="custom-switch">
-                                                <input type="checkbox" id="bot-toggle" disabled onclick="toggleBot()">
-                                                <label for="bot-toggle">Bot Paused</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-2">
-                                            <input style="width: 100%" class="btn btn-primary" disabled="true" id="post-config" value="Update" onclick="postConfig()">
-                                        </div>
+                    <div class="col" style="padding:50px">
+                        <div class="row">
+                            <div class="col-10">
+                                <div class="custom-switch">
+                                    <input type="checkbox" id="bot-toggle" disabled onclick="toggleBot()">
+                                    <label for="bot-toggle">Bot Paused</label>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <input style="width: 100%" class="btn btn-primary" disabled="true" id="post-config" value="Apply Changes" onclick="postConfig()">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card">
+                                    <h2 class="content-title">Config</h2>
+                                    <label for="bot-mode">Bot Mode</label>
+                                    <select class="form-control" id="bot-mode">
+                                        <option disabled="disabled">-- Soft Resets</option>
+                                        <option selected="selected">Starters</option>
+                                        <option disabled="disabled">-- Random Encounters</option>
+                                        <option>Move along path</option>
+                                        <option>Move until obstructed</option>
+                                        <option>Fishing</option>
+                                        <option>Sweet Scent</option>
+                                        <option>Bunny Hop</option>
+                                        <option disabled="disabled">-- Static Encounters</option>
+                                        <option>Groudon</option>
+                                        <option>Kyogre</option>
+                                        <option>Rayquaza</option>
+                                        <option>Southern Island</option>
+                                        <option>Mew</option>
+                                        <option>Regi Trio</option>
+                                        <option>Deoxys runaways</option>
+                                        <option>Deoxys resets</option>
+                                        <option disabled="disabled">-- Gift Pokemon</option>
+                                        <option>Fossil</option>
+                                        <option>Castform</option>
+                                        <option>Beldum</option>
+                                        <option>Johto Starters</option>
+                                        <option disabled="disabled">-- Misc</option>
+                                        <option>Buy Premier Balls</option>
+                                    </select>
+                                    <br>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="save-game-on-start" value="">
+                                        <label for="save-game-on-start">Save game on start</label>
+                                    </div>
+                                    <br>
+                                    <label for="coords">Coords</label>
+                                    <textarea class="form-control" spellcheck="false" style="min-width:200px; max-width:200px; min-height: 100px; " id="direction" placeholder=""></textarea>
+                                    <br>
+                                    <label for="direction">Move Direction</label>
+                                    <select class="form-control" id="select-1">
+                                        <option value="red">Horizontal</option>
+                                        <option value="red">Vertical</option>
+                                    </select>
+                                    <br>
+                                    <label for="starter">Starter</label>
+                                    <select class="form-control" id="starter">
+                                        <option value="red">Treecko</option>
+                                        <option value="red">Torchic</option>
+                                        <option value="red">Mudkip</option>
+                                    </select>
+                                    <br>
+                                    <label for="johto-starter">Johto Starter</label>
+                                    <select class="form-control" id="johto-starter">
+                                        <option value="red">Chikorita</option>
+                                        <option value="red">Cyndaquil</option>
+                                        <option value="red">Totodile</option>
+                                    </select>
+                                    <br>
+                                    <label for="fossil">Fossil</label>
+                                    <select class="form-control" id="fossil">
+                                        <option value="red">Anorith</option>
+                                        <option value="red">Lileep</option>
+                                    </select>
+                                    <br>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="deoxys-puzzle-solved" value="">
+                                        <label for="deoxys-puzzle-solved">Deoxys puzzle solved?</label>
+                                    </div>
+                                    <br>
+                                </div>
+                                <div class="card">
+                                    <h2 class="content-title">Discord Integration</h2>
+                                    <input id="discord-webhook-url" type="text" class="form-control" placeholder="Webhook URL">
+                                    <br>
+                                    <select class="form-control" id="discord-ping-mode">
+                                        <option value="red">No Ping</option>
+                                        <option value="red">Role</option>
+                                        <option value="red">User</option>
+                                    </select>
+                                    <br>
+                                    <input id="discord-shiny-ping" type="text" class="form-control" placeholder="User/Role ID">
+                                </div>
+                                <div class="card">
+                                    <h2 class="content-title">Logging</h2>
+                                    <label for="encounter-log-limit">Encounter Log Limit</label>
+                                    <input id="encounter-log-limit" min="1" type="number" class="form-control" placeholder="">
+                                    <br>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="csvlog" value="">
+                                        <label for="csvlog">Create CSV logs</label>
+                                    </div>
+                                    <br>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="jsonlog" value="">
+                                        <label for="jsonlog">Create JSON logs</label>
+                                    </div>
+                                    <br>
+                                    <label for="log">Log Encounters</label>
+                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="log" placeholder=""></textarea>
+                                </div>
+                                <div class="card">
+                                    <h2 class="content-title">Other</h2>
+                                    <label for="control-map">Control map</label>
+                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 400px;" id="control-map" placeholder=""></textarea>
+                                    <br>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="do-realistic-hunt" value="">
+                                        <label for="do-realistic-hunt">Disable use of RAM reading for early resets</label>
                                     </div>
                                 </div>
-                                <h2 class="content-title">Config</h2>
-                                <div class="form-group">
-                                    <textarea class="form-control" spellcheck="false" style="min-height:500px" id="config-text" disabled="true" placeholder="Loading config..."></textarea>
+                            </div>
+                            <div class="col-6">
+                                <div class="card">
+                                    <h2 class="content-title">Wild Battles</h2>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="cycle-lead-pokemon" value="">
+                                        <label for="cycle-lead-pokemon">Cycle exhausted lead Pokemon</label>
+                                    </div>
+                                    <br>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="save-game-after-catch" value="">
+                                        <label for="save-game-after-catch">Save game after catch</label>
+                                    </div>
+                                    <br>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="use-spore" value="">
+                                        <label for="use-spore">Use Spore to sleep targets</label>
+                                    </div>
+                                    <br>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="battle-others" value="">
+                                        <label for="battle-others">Battle non-targets</label>
+                                    </div>
+                                    <br>
+                                    <label for="catch">Target traits to catch</label>
+                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="catch" placeholder=""></textarea>
+                                    <br>
+                                    <label for="pokeball-priority">Pokeball priority order</label>
+                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="pokeball-priority" placeholder=""></textarea>
+                                    <br>
+                                    <label for="pokeball-override">Pokeball override</label>
+                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 200px;" id="pokeball-override" placeholder=""></textarea>
+                                    <br>
+                                    <label for="banned-moves">Banned Moves</label>
+                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 300px; " id="banned-moves" placeholder=""></textarea>
                                 </div>
-                                <!-- Submit button -->
-                                <script src="path/to/halfmoon.js"></script>
+                                <div class="card">
+                                    <h2 class="content-title">Pickup</h2>
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="pickup" value="">
+                                        <label for="pickup">Collect pickup items after successful battle</label>
+                                    </div>
+                                    <br>
+                                    <label for="pickup-threshold">Pickup threshold</label>
+                                    <input id="pickup-threshold" style="width:100px" min="1" max="6" type="number" class="form-control">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Content wrapper end -->
+    </div>
+    <!-- Content wrapper end -->
     </div>
     <!-- Page wrapper end -->
     <!-- Halfmoon JS -->

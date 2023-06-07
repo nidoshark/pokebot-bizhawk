@@ -1258,7 +1258,6 @@ def httpServer(): # Run HTTP server to make data available via HTTP GET
                 response = jsonify(encounter_log)
                 return response
             else: abort(503)
-<<<<<<< Updated upstream
         @server.route('/shiny_log', methods=['GET'])		
         def req_shiny_log():		
             if shiny_log:		
@@ -1270,8 +1269,6 @@ def httpServer(): # Run HTTP server to make data available via HTTP GET
         #    debug_log.info(request.get_json()) # TODO HTTP config handler
         #    response = jsonify({})
         #    return response
-=======
->>>>>>> Stashed changes
 
         @server.route('/bot_status', methods=['POST'])
         def post_bot_status():
@@ -1889,40 +1886,6 @@ def mode_kyogre():
             (14, 27)
         ])
 
-<<<<<<< Updated upstream
-=======
-def mode_rayquaza():
-    if (not player_on_map(MapDataEnum.SKY_PILLAR_G.value) or
-        not (trainer_info["posX"] == 14 and trainer_info["posY"] <= 12)):
-        debug_log.info("Please place the player below Rayquaza at the Sky Pillar and restart the script.")
-        os._exit(1)
-
-    while can_loop():
-        while not opponent_changed():
-            emu_combo(["A", "Up"]) # Walk up toward Rayquaza while mashing A
-        
-        identify_pokemon()
-
-        # Wait until battle is over
-        while trainer_info["state"] != GameState.OVERWORLD:
-            continue
-
-        # Exit and re-enter
-        press_button("B")
-        follow_path([
-            (14, 11), 
-            (12, 11), 
-            (12, 15), 
-            (16, 15), 
-            (16, -99, MapDataEnum.SKY_PILLAR_F.value), 
-            (10, -99, MapDataEnum.SKY_PILLAR_G.value), 
-            (12, 15), 
-            (12, 11), 
-            (14, 11), 
-            (14, 7)
-        ])
-
->>>>>>> Stashed changes
 def mode_farawayMew():
     if (not player_on_map(MapDataEnum.FARAWAY_ISLAND.value) or not (22 <= trainer_info["posX"] <= 23 and 8 <= trainer_info["posY"] <= 10)):
         debug_log.info("Please place the player below the entrance to Mew's area, then restart the script.")
@@ -2035,7 +1998,7 @@ def mode_reporting():
 
             image_time = datetime.now().strftime('%Y%m%d-%H%M%S%f')
             cv2.imwrite(f"reports/{report_start}/img/{image_time}.png", get_screenshot())
-
+            
             html = f"""
             </br></br><hr><h2>{image_time}</h2>
             <img src="img/{image_time}.png">
