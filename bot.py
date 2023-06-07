@@ -127,6 +127,7 @@ def frames_to_ms(frames: float):
     return max((frames/60.0) / emu_speed, 0.02)
 
 def press_button(button: str): # Function to update the press_input object
+    checkPaused()
     global g_current_index
 
     match button:
@@ -154,6 +155,7 @@ def press_button(button: str): # Function to update the press_input object
         g_current_index = 0
 
 def hold_button(button: str): # Function to update the hold_input object
+    checkPaused()
     global hold_input
     debug_log.debug(f"Holding: {button}...")
 
@@ -162,6 +164,7 @@ def hold_button(button: str): # Function to update the hold_input object
     hold_input_mmap.write(bytes(json.dumps(hold_input), encoding="utf-8"))
 
 def release_button(button: str): # Function to update the hold_input object
+    checkPaused()
     global hold_input
     debug_log.debug(f"Releasing: {button}...")
 
@@ -377,6 +380,8 @@ def battle(): # Function to battle wild pokemon
     foe_fainted = False
 
     while not ally_fainted and not foe_fainted and trainer_info["state"] != GameState.OVERWORLD:
+        checkPaused()
+
         debug_log.info("Navigating to the FIGHT button...")
 
         while not find_image("battle/fight.png") and trainer_info["state"] != GameState.OVERWORLD:
@@ -433,6 +438,8 @@ def is_valid_move(move: dict):
     return not move["name"] in config["banned_moves"] and move["power"] > 0
 
 def find_effective_move(ally: dict, foe: dict):
+    checkPaused()
+
     i = 0
     move_power = []
 
@@ -473,6 +480,7 @@ def find_effective_move(ally: dict, foe: dict):
     }
 
 def flee_battle(): # Function to run from wild pokemon
+    checkPaused()
     try:
         debug_log.info("Running from battle...")
         while trainer_info["state"] != GameState.OVERWORLD:
@@ -534,6 +542,8 @@ def follow_path(coords: list, run: bool = True, exit_when_stuck: bool = False):
             hold_button("B")
 
         while True:
+            checkPaused()
+
             if direction != None:
                 release_button(direction)
 
@@ -644,6 +654,8 @@ def pickup_items(): # If using a team of Pokemon with the ability "pickup", this
 
     i = 0
     while i < party_size:
+        checkPaused()
+
         pokemon = party_info[i]
         held_item = pokemon['heldItem']
 
@@ -918,6 +930,7 @@ def mon_is_desirable(pokemon: dict):
     return False
 
 def identify_pokemon(starter: bool = False): # Identify opponent pokemon and incremement statistics, returns True if shiny, else False
+    checkPaused()
     legendary_hunt = config["bot_mode"] in ["manual", "rayquaza", "kyogre", "groudon", "southern island", "regi trio", "deoxys resets", "deoxys runaways", "mew"]
 
     debug_log.info("Identifying Pokemon...")
@@ -1245,6 +1258,7 @@ def httpServer(): # Run HTTP server to make data available via HTTP GET
                 response = jsonify(encounter_log)
                 return response
             else: abort(503)
+<<<<<<< Updated upstream
         @server.route('/shiny_log', methods=['GET'])		
         def req_shiny_log():		
             if shiny_log:		
@@ -1256,13 +1270,58 @@ def httpServer(): # Run HTTP server to make data available via HTTP GET
         #    debug_log.info(request.get_json()) # TODO HTTP config handler
         #    response = jsonify({})
         #    return response
+=======
+>>>>>>> Stashed changes
 
+        @server.route('/bot_status', methods=['POST'])
+        def post_bot_status():
+            global bot_paused
+
+            bot_paused = request.get_data() == bytes("true", encoding="utf-8")
+            print(f"Bot paused set to {bot_paused}. Pausing at next opportunity...")
+            return 'Success'
+
+        @server.route('/bot_status', methods=['GET'])
+        def req_bot_status():
+            paused = str(bot_paused).lower()
+            return paused
+
+        @server.route('/config', methods=['POST'])
+        def post_config():
+            try:
+                global config_updated, config
+
+                config = json.loads(request.get_json())
+                write_file("interface/config.json", json.dumps(config, indent=4, sort_keys=True))
+
+                debug_log.info("Updated config! Changes to the bot mode won't be applied until the next cycle.")
+                config_updated = True
+                return 'Success'
+            except Exception as e:
+                debug_log.error(str(e))
+                debug_log.error("Couldn't update config! Is there an error in your syntax?")
+                return 'Fail'
+        @server.route('/config', methods=['GET'])
+        def req_config():
+            if config:
+                return config
+            else: abort(503)
         server.run(debug=False, threaded=True, host="127.0.0.1", port=6969)
     except Exception as e: debug_log.exception(str(e))
 
+def checkPaused():
+    global config_updated
+    # Wait to be unpaused in 1/2 second intervals
+    if bot_paused:
+        release_all_inputs()
+        debug_log.info("Bot paused. Unpause to resume functionality.")
+
+        while bot_paused:
+            wait_frames(30)
+
 def mainLoop():
-    global last_opponent_personality
-    
+    global last_opponent_personality, config_updated
+
     if config["save_game_on_start"]: 
         save_game()
     
@@ -1274,6 +1333,12 @@ def mainLoop():
             continue
 
         if trainer_info and emu_info and MapDataEnum:
+            checkPaused()
+
+            if config_updated:
+                debug_log.info("Updated bot mode applied!")
+                config_updated = False
+
             match config["bot_mode"]:
                 case "manual":
                     while not opponent_changed(): 
@@ -1283,8 +1348,8 @@ def mainLoop():
                     mode_sweetScent()
                 case "bunny hop":
                     mode_bunnyHop()
-                case "move between coords":
-                    mode_move_between_coords()
+                case "move along path":
+                    mode_move_along_path()
                 case "move until obstructed":
                     mode_move_until_obstructed()
                 case "fishing":
@@ -1334,7 +1399,7 @@ def mainLoop():
                 last_opponent_personality = opponent_info["personality"]
             
             release_all_inputs()
-            time.sleep(0.2)
+            wait_frames(10)
         wait_frames(1)
 
 def mode_beldum():
@@ -1373,6 +1438,9 @@ def mode_johtoStarters():
 
     collect_gift_mon(config["johto_starter"])
 
+def can_loop():
+    return not bot_paused and not config_updated
+
 def collect_gift_mon(target: str):
     rng_frames = get_rngState(trainer_info["tid"], target)
     party_size = len(party_info)
@@ -1381,7 +1449,7 @@ def collect_gift_mon(target: str):
         debug_log.info("Please leave at least one party slot open, then restart the script.")
         os._exit(1)
 
-    while True:
+    while can_loop():
         # Button mash through intro/title
         while trainer_info["state"] != GameState.OVERWORLD:
             press_button("A")
@@ -1456,7 +1524,7 @@ def mode_regiTrio():
         debug_log.info("Please place the player below the target Regi in Desert Ruins, Island Cave or Ancient Tomb, then restart the script.")
         os._exit(1)
 
-    while True:
+    while can_loop():
         while not opponent_changed():
             emu_combo(["Up", "A"])
 
@@ -1484,7 +1552,7 @@ def mode_deoxysPuzzle(do_encounter: bool = True):
 
     delay = 4
 
-    while True:
+    while can_loop():
         while not trainer_info["state"] == GameState.OVERWORLD:
             emu_combo(["A", 8])
 
@@ -1568,7 +1636,7 @@ def mode_deoxysResets():
 
     deoxys_frames = get_rngState(trainer_info["tid"], "deoxys")
 
-    while True:
+    while can_loop():
         # Mash A to reach overworld from intro/title
         while trainer_info["state"] != GameState.OVERWORLD:
             emu_combo(["A", 8])
@@ -1618,15 +1686,14 @@ def mode_bunnyHop():
     release_all_inputs()
     identify_pokemon()
 
-def mode_move_between_coords():
-    coords = config["coords"]
-    pos1, pos2 = coords["pos1"], coords["pos2"]
+def mode_move_along_path():
+    path = config["path"]
 
-    while True:
+    while can_loop():
         foe_personality = last_opponent_personality
 
         while foe_personality == last_opponent_personality:
-            follow_path([(pos1[0], pos1[1]), (pos2[0], pos2[1])])
+            follow_path([tuple(path)])
 
         identify_pokemon()
 
@@ -1636,7 +1703,7 @@ def mode_move_between_coords():
 def mode_move_until_obstructed():
     direction = config["direction"].lower()
 
-    while True:
+    while can_loop():
         pos1, pos2 = None, None
         foe_personality = last_opponent_personality
         debug_log.info(f"Pathing {direction} until obstructed...")
@@ -1688,15 +1755,15 @@ def mode_starters():
     starter_frames = get_rngState(trainer_info['tid'], choice)
 
     if choice not in ["treecko", "torchic", "mudkip"]:
-        debug_log.info(f"Unknown starter \"{config['starter']}\". Please edit the value in config.yml and restart the script.")
+        debug_log.info(f"Unknown starter \"{config['starter']}\". Please edit the value in the config tab and restart the script.")
         os._exit(1)
 
     debug_log.info(f"Soft resetting starter Pokemon...")
     
-    while True:
+    while can_loop():
         release_all_inputs()
 
-        while trainer_info["state"] != GameState.OVERWORLD: 
+        while trainer_info["state"] != GameState.OVERWORLD:
             press_button("A")
 
         # Short delay between A inputs to prevent accidental selection confirmations
@@ -1743,7 +1810,7 @@ def mode_rayquaza():
         debug_log.info("Please place the player below Rayquaza at the Sky Pillar and restart the script.")
         os._exit(1)
 
-    while True:
+    while can_loop():
         while not opponent_changed():
             emu_combo(["A", "Up"]) # Walk up toward Rayquaza while mashing A
         
@@ -1774,7 +1841,7 @@ def mode_groudon():
         debug_log.info("Please place the player below Groudon in Terra Cave and restart the script.")
         os._exit(1)
 
-    while True:
+    while can_loop():
         follow_path([(17, 26)])
 
         identify_pokemon()
@@ -1800,7 +1867,7 @@ def mode_kyogre():
         debug_log.info("Please place the player below Kyogre in Marine Cave and restart the script.")
         os._exit(1)
 
-    while True:
+    while can_loop():
         follow_path([(9, 26)])
 
         identify_pokemon()
@@ -1822,13 +1889,47 @@ def mode_kyogre():
             (14, 27)
         ])
 
+<<<<<<< Updated upstream
+=======
+def mode_rayquaza():
+    if (not player_on_map(MapDataEnum.SKY_PILLAR_G.value) or
+        not (trainer_info["posX"] == 14 and trainer_info["posY"] <= 12)):
+        debug_log.info("Please place the player below Rayquaza at the Sky Pillar and restart the script.")
+        os._exit(1)
+
+    while can_loop():
+        while not opponent_changed():
+            emu_combo(["A", "Up"]) # Walk up toward Rayquaza while mashing A
+        
+        identify_pokemon()
+
+        # Wait until battle is over
+        while trainer_info["state"] != GameState.OVERWORLD:
+            continue
+
+        # Exit and re-enter
+        press_button("B")
+        follow_path([
+            (14, 11), 
+            (12, 11), 
+            (12, 15), 
+            (16, 15), 
+            (16, -99, MapDataEnum.SKY_PILLAR_F.value), 
+            (10, -99, MapDataEnum.SKY_PILLAR_G.value), 
+            (12, 15), 
+            (12, 11), 
+            (14, 11), 
+            (14, 7)
+        ])
+
+>>>>>>> Stashed changes
 def mode_farawayMew():
     if (not player_on_map(MapDataEnum.FARAWAY_ISLAND.value) or not (22 <= trainer_info["posX"] <= 23 and 8 <= trainer_info["posY"] <= 10)):
         debug_log.info("Please place the player below the entrance to Mew's area, then restart the script.")
         os._exit(1)
         return
 
-    while True:
+    while can_loop():
         # Enter main area
         while player_on_map(MapDataEnum.FARAWAY_ISLAND.value):
             follow_path([
@@ -1869,7 +1970,7 @@ def mode_southernIsland():
         debug_log.info("Please place the player below the sphere on Southern Island and restart the script.")
         os._exit(1)
 
-    while True:
+    while can_loop():
         while not opponent_changed():
             emu_combo(["A", "Up"])
 
@@ -2022,11 +2123,11 @@ try:
     yaml = YAML()
     yaml.default_flow_style = False
 
-    config = yaml.load(read_file("config.yml")) # Load config
-
-    last_trainer_state, last_opponent_personality, trainer_info, opponent_info, emu_info, party_info, emu_speed, language, MapDataEnum = None, None, None, None, None, None, 1, None, None
+    config = json.loads(read_file("interface/config.json")) # Load config
+    
+    last_trainer_state, last_opponent_personality, trainer_info, opponent_info, emu_info, party_info, emu_speed, language, MapDataEnum, bot_paused, config_updated = None, None, None, None, None, None, 1, None, None, False, False
     ImageFile.LOAD_TRUNCATED_IMAGES = True
-
+    
     # Main bot functionality
     if can_start_bot:        
         if args.s: config["save_game_on_start"] = True

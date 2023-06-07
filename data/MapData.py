@@ -16,11 +16,11 @@ class mapRSE(Enum):
     LITTLEROOT_TOWN = (0,9)
     OLDALE_TOWN = (0,10)
     DEWFORD_TOWN = (0,11)
-    LAVARIDGE_TOWN = (0,12)
+    LAVARIDGE_TOWN = (0,12) # Wynaut Egg
     FALLARBOR_TOWN = (0,13)
     VERDANTURF_TOWN = (0,14)
     PACIFIDLOG_TOWN = (0,15)
-    ROUTE_101 = (0,16)
+    ROUTE_101 = (0,16) # Starters
     ROUTE_102 = (0,17)
     ROUTE_103 = (0,18)
     ROUTE_104 = (0,19)
@@ -206,7 +206,7 @@ class mapRSE(Enum):
     MOSSDEEP_CITY_E = (14,4)
     MOSSDEEP_CITY_F = (14,5)
     MOSSDEEP_CITY_G = (14,6)
-    MOSSDEEP_CITY_H = (14,7)
+    MOSSDEEP_CITY_H = (14,7) # Beldum, Steven's House
     MOSSDEEP_CITY_I = (14,8)
     MOSSDEEP_CITY_J = (14,9)
     MOSSDEEP_CITY_K = (14,11)
@@ -448,7 +448,7 @@ class mapRSE(Enum):
     SAFARI_ZONE_D = (26,11)
     SAFARI_ZONE_E = (26,12)
     SAFARI_ZONE_F = (26,13)
-    BATTLE_FRONTIER_E = (26,14)
+    BATTLE_FRONTIER_E = (26,14) # Sudowoodo
     BATTLE_FRONTIER_F = (26,15)
     BATTLE_FRONTIER_G = (26,16)
     BATTLE_FRONTIER_H = (26,17)
@@ -508,7 +508,7 @@ class mapRSE(Enum):
     NAVEL_ROCK_E = (26,71)
     NAVEL_ROCK_F = (26,72)
     NAVEL_ROCK_G = (26,73)
-    NAVEL_ROCK_H = (26,75)
+    NAVEL_ROCK_H = (26,75) # Ho-Oh
     NAVEL_ROCK_I = (26,76)
     NAVEL_ROCK_J = (26,77)
     NAVEL_ROCK_K = (26,78)
@@ -520,7 +520,7 @@ class mapRSE(Enum):
     NAVEL_ROCK_Q = (26,84)
     NAVEL_ROCK_R = (26,85)
     NAVEL_ROCK_S = (26,86)
-    NAVEL_ROCK_T = (26,87)
+    NAVEL_ROCK_T = (26,87) # Lugia
     TRAINER_HILL_F = (26,88)
 
     ROUTE_104_C = (27,0)

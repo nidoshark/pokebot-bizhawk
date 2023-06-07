@@ -1,0 +1,101 @@
+{
+    "bot_mode": "Starters",
+    "path": [
+        [38, 6],
+        [39, 6]
+    ],
+    "direction": "Horizontal",
+    "starter": "Mudkip",
+    "johto_starter": "Cyndaquil",
+    "fossil": "Anorith",
+    "deoxys_puzzle_solved": false,
+    "manual_catch": false,
+    "use_spore": false,
+    "catch": [
+        "shinies",
+        "perfect_ivs",
+        "good_ivs"
+    ],
+    "battle_others": true,
+    "pokeball_priority": [
+        "ultra_ball",
+        "great_ball",
+        "poke_ball"
+    ],
+    "pokeball_override":
+    {
+        "Abra": [
+            "ultra_ball",
+            "great_ball"
+        ]
+    },
+    "cycle_lead_pokemon": true,
+    "save_game_after_catch": false,
+    "save_game_on_start": false,
+    "pickup": true,
+    "pickup_threshold": 2,
+    "encounter_log_limit": 100,
+    "log": [
+        "all_encounters",
+        "shiny_encounters"
+    ],
+    "control_map":
+    {
+        "a": "x",
+        "b": "z",
+        "l": "w",
+        "r": "e",
+        "up": "up",
+        "down": "down",
+        "right": "right",
+        "left": "left",
+        "select": "space",
+        "start": "enter",
+        "emu_screenshot": "f12",
+        "emu_reset_combo": [
+            "ctrl",
+            "r"
+        ]
+    },
+    "banned_moves": [
+        "None",
+        "Bounce",
+        "Dig",
+        "Dive",
+        "Fly",
+        "Sky Attack",
+        "Razor Wind",
+        "Doom Desire",
+        "Solar Beam",
+        "Fake Out",
+        "False Swipe",
+        "Nature Power",
+        "Present",
+        "Destiny Bond",
+        "Wrap",
+        "Snore",
+        "Spit Up",
+        "Bide",
+        "Bind",
+        "Counter",
+        "Future Sight",
+        "Mirror Coat",
+        "Grudge",
+        "Snatch",
+        "Spite",
+        "Curse",
+        "Endeavor",
+        "Revenge",
+        "Assist",
+        "Focus Punch",
+        "Eruption",
+        "Flail",
+        "Roar",
+        "Whirlwind",
+        "Selfdestruct",
+        "Perish Song",
+        "Explosion",
+        "Memento"
+    ],
+    "do_realistic_hunt": true
+}

@@ -52,10 +52,12 @@ function trainer_info() {
             $("#trainer_state").text(trainer_info["state"]);
         })
 }
-function get_type_image(type_str){
+
+function get_type_image(type_str) {
     return `<img src=\"sprites/types/${type_str}.png\">`
-        
+
 }
+
 function opponent_info() {
     $.ajax({
             method: "GET",
@@ -151,10 +153,10 @@ function opponent_info() {
             var types = ""
             var arrayLength = opponent_info["type"].length;
             for (var o = 0; o < arrayLength; o++) {
-                types += get_type_image(opponent_info["type"][o]) + String((opponent_info["type"][o] != 0 && arrayLength != 1)? '':' ');
+                types += get_type_image(opponent_info["type"][o]) + String((opponent_info["type"][o] != 0 && arrayLength != 1) ? '' : ' ');
             }
             $("#opponent_type").html(types);
-            
+
             if (opponent_info["stats"]) {
                 $("#opponent_phase_encounters").text(opponent_info["stats"]["phase_encounters"].toLocaleString());
                 $("#opponent_encounters").text(opponent_info["stats"]["encounters"].toLocaleString());
@@ -240,6 +242,7 @@ function shiny_log() {
             var tr = '';
             var wrapper = document.getElementById("shiny_log");
 
+<<<<<<< Updated upstream
             reverse_shiny_log = shiny_log["shiny_log"].reverse();
 
             for (var i = 0; i < 25; i++) {
@@ -265,8 +268,82 @@ window.setInterval(function() {
 }, 1000);
 
 shiny_log();
+=======
+function setBotStatus() {
+    $.ajax({
+            method: "GET",
+            url: "http://127.0.0.1:6969/bot_status",
+            crossDomain: true,
+            timeout: 50
+        })
+        .done(function(is_paused) {
+            ele = $("#bot-toggle");
+            bot_paused = is_paused == "true"
+
+            if (bot_paused) {
+                ele.prop('checked', true);
+            } else {
+                ele.removeAttr('checked')
+            }
+
+            ele.prop('disabled', false);
+        })
+}
+
+function setConfig() {
+    $.ajax({
+            method: "GET",
+            url: "http://127.0.0.1:6969/config",
+            crossDomain: true,
+            dataType: "json",
+            format: "json",
+            timeout: 50
+        })
+        .done(function(config) {
+            ele = $("#config-text")
+            ele.val(JSON.stringify(config, null, 2));
+            ele.removeAttr('disabled')
+
+            $("#post-config").removeAttr('disabled')
+        })
+}
+
+function postConfig() {
+    $.ajax({
+        method: "POST",
+        url: "http://127.0.0.1:6969/config",
+        crossDomain: true,
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify($("#config-text").val()),
+        timeout: 50
+    })
+}
+
+function toggleBot() {
+    bot_paused = !bot_paused
+
+    $.ajax({
+        method: "POST",
+        url: "http://127.0.0.1:6969/bot_status",
+        crossDomain: true,
+        dataType: "json",
+        contentType: "application/json",
+        data: bot_paused.toString(),
+        timeout: 50
+    });
+}
+
+bot_paused = false
+
+>>>>>>> Stashed changes
 window.setInterval(function() {
     encounter_log();
+
+    if ($("#config-text").val() == "") {
+        setConfig();
+        setBotStatus();
+    }
 }, 1000);
 
 window.setInterval(function() {
