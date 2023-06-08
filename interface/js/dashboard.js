@@ -242,7 +242,6 @@ function shiny_log() {
             var tr = '';
             var wrapper = document.getElementById("shiny_log");
 
-<<<<<<< Updated upstream
             reverse_shiny_log = shiny_log["shiny_log"].reverse();
 
             for (var i = 0; i < 25; i++) {
@@ -268,24 +267,19 @@ window.setInterval(function() {
 }, 1000);
 
 shiny_log();
-=======
+
 function setBotStatus() {
     $.ajax({
             method: "GET",
             url: "http://127.0.0.1:6969/bot_status",
             crossDomain: true,
-            timeout: 50
+            timeout: 500
         })
         .done(function(is_paused) {
             ele = $("#bot-toggle");
             bot_paused = is_paused == "true"
-
-            if (bot_paused) {
-                ele.prop('checked', true);
-            } else {
-                ele.removeAttr('checked')
-            }
-
+            
+            ele.prop('checked', bot_paused);
             ele.prop('disabled', false);
         })
 }
@@ -297,25 +291,73 @@ function setConfig() {
             crossDomain: true,
             dataType: "json",
             format: "json",
-            timeout: 50
+            timeout: 500
         })
         .done(function(config) {
-            ele = $("#config-text")
-            ele.val(JSON.stringify(config, null, 2));
-            ele.removeAttr('disabled')
+            original_config = config
 
+            // Text areas
+            text_areas = ["path", "catch", "pokeball_priority", "pokeball_override", "log", "control_map", "banned_moves"]
+
+            for (var i = 0; i < text_areas.length; i++) {
+                field = text_areas[i]
+                $("#" + field).val(JSON.stringify(config[field]), null, 2)
+            }
+
+            // Fields
+            fields = ["bot_mode", "direction", "starter", "johto_starter", "fossil", "pickup_threshold", "encounter_log_limit"]
+
+            for (var i = 0; i < fields.length; i++) {
+                field = fields[i]
+                $("#" + field).val(config[field])
+            }
+
+            // Checkboxes
+            checkboxes = ["deoxys_puzzle_solved", "battle_others", "manual_catch", "use_spore", "cycle_lead_pokemon", "save_game_after", "save_game_on", "pickup", "csvlog", "jsonlog", "do_realistic_hunt"]
+
+            for (var i = 0; i < checkboxes.length; i++) {
+                field = checkboxes[i]
+                $("#" + field).prop('checked', config[field]);
+            }
+
+            // Enable config editing
+            $("#config-form").removeAttr('disabled')
             $("#post-config").removeAttr('disabled')
         })
 }
 
 function postConfig() {
+    config = original_config
+
+    // Edit the original config file with new values
+    text_areas = ["path", "catch", "pokeball_priority", "pokeball_override", "log", "control_map", "banned_moves"]
+
+    for (var i = 0; i < text_areas.length; i++) {
+        field = text_areas[i]
+        config[field] = JSON.parse($("#" + field).val())
+    }
+
+    fields = ["bot_mode", "direction", "starter", "johto_starter", "fossil", "pickup_threshold", "encounter_log_limit"]
+
+    for (var i = 0; i < fields.length; i++) {
+        field = fields[i]
+        config[field] = $("#" + field).val()
+    }
+
+    checkboxes = ["deoxys_puzzle_solved", "battle_others", "manual_catch", "use_spore", "cycle_lead_pokemon", "save_game_after", "save_game_on", "pickup", "csvlog", "jsonlog", "do_realistic_hunt"]
+
+    for (var i = 0; i < checkboxes.length; i++) {
+        field = checkboxes[i]
+        config[field] = $("#" + field).prop('checked')
+    }
+
     $.ajax({
         method: "POST",
         url: "http://127.0.0.1:6969/config",
         crossDomain: true,
         dataType: "json",
         contentType: "application/json",
-        data: JSON.stringify($("#config-text").val()),
+        data: JSON.stringify(config),
         timeout: 50
     })
 }
@@ -335,15 +377,10 @@ function toggleBot() {
 }
 
 bot_paused = false
+original_config = ""
 
->>>>>>> Stashed changes
 window.setInterval(function() {
     encounter_log();
-
-    if ($("#config-text").val() == "") {
-        setConfig();
-        setBotStatus();
-    }
 }, 1000);
 
 window.setInterval(function() {
@@ -361,3 +398,7 @@ emu_info();
 trainer_info();
 opponent_info();
 encounter_log();
+
+// Request to get config.json to fill the config page
+setConfig();
+setBotStatus();

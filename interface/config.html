@@ -84,177 +84,179 @@
                 <div class="container-fluid">
                     <!-- Row (equally spaced on large screens and up) -->
                     <div class="col" style="padding:50px">
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="custom-switch">
-                                    <input type="checkbox" id="bot-toggle" disabled onclick="toggleBot()">
-                                    <label for="bot-toggle">Bot Paused</label>
+                        <fieldset id="config-form" disabled="disabled">
+                            <div class="row">
+                                <div class="col-10">
+                                    <div class="custom-switch">
+                                        <input type="checkbox" id="bot-toggle" disabled onclick="toggleBot()">
+                                        <label for="bot-toggle">Bot Paused</label>
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                    <input style="width: 100%" class="btn btn-primary" disabled="true" id="post-config" value="Apply Changes" onclick="postConfig()">
                                 </div>
                             </div>
-                            <div class="col-2">
-                                <input style="width: 100%" class="btn btn-primary" disabled="true" id="post-config" value="Apply Changes" onclick="postConfig()">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="card">
-                                    <h2 class="content-title">Config</h2>
-                                    <label for="bot-mode">Bot Mode</label>
-                                    <select class="form-control" id="bot-mode">
-                                        <option disabled="disabled">-- Soft Resets</option>
-                                        <option selected="selected">Starters</option>
-                                        <option disabled="disabled">-- Random Encounters</option>
-                                        <option>Move along path</option>
-                                        <option>Move until obstructed</option>
-                                        <option>Fishing</option>
-                                        <option>Sweet Scent</option>
-                                        <option>Bunny Hop</option>
-                                        <option disabled="disabled">-- Static Encounters</option>
-                                        <option>Groudon</option>
-                                        <option>Kyogre</option>
-                                        <option>Rayquaza</option>
-                                        <option>Southern Island</option>
-                                        <option>Mew</option>
-                                        <option>Regi Trio</option>
-                                        <option>Deoxys runaways</option>
-                                        <option>Deoxys resets</option>
-                                        <option disabled="disabled">-- Gift Pokemon</option>
-                                        <option>Fossil</option>
-                                        <option>Castform</option>
-                                        <option>Beldum</option>
-                                        <option>Johto Starters</option>
-                                        <option disabled="disabled">-- Misc</option>
-                                        <option>Buy Premier Balls</option>
-                                    </select>
-                                    <br>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="save-game-on-start" value="">
-                                        <label for="save-game-on-start">Save game on start</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="card">
+                                        <h2 class="content-title">Config</h2>
+                                        <label for="bot_mode">Bot Mode</label>
+                                        <select class="form-control" id="bot_mode">
+                                            <option disabled="disabled">-- Soft Resets</option>
+                                            <option value="starters">Starters</option>
+                                            <option disabled="disabled">-- Random Encounters</option>
+                                            <option value="move along path">Move along path</option>
+                                            <option value="move until obstructed">Move until obstructed</option>
+                                            <option value="fishing">Fishing</option>
+                                            <option value="sweet Scent">Sweet Scent</option>
+                                            <option value="bunny Hop">Bunny Hop</option>
+                                            <option disabled="disabled">-- Static Encounters</option>
+                                            <option value="groudon">Groudon</option>
+                                            <option value="kyogre">Kyogre</option>
+                                            <option value="rayquaza">Rayquaza</option>
+                                            <option value="southern Island">Southern Island</option>
+                                            <option value="mew">Mew</option>
+                                            <option value="regi Trio">Regi Trio</option>
+                                            <option value="deoxys runaways">Deoxys runaways</option>
+                                            <option value="deoxys resets">Deoxys resets</option>
+                                            <option disabled="disabled">-- Gift Pokemon</option>
+                                            <option value="fossil">Fossil</option>
+                                            <option value="castform">Castform</option>
+                                            <option value="beldum">Beldum</option>
+                                            <option value="johto Starters">Johto Starters</option>
+                                            <option disabled="disabled">-- Misc</option>
+                                            <option value="buy Premier Balls">Buy Premier Balls</option>
+                                        </select>
+                                        <br>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="save_game_on_start">
+                                            <label for="save_game_on_start">Save game on start</label>
+                                        </div>
+                                        <br>
+                                        <label for="path">Coords</label>
+                                        <textarea class="form-control" spellcheck="false" style="min-width:200px; max-width:200px; min-height: 100px; " id="path" placeholder=""></textarea>
+                                        <br>
+                                        <label for="direction">Move Direction</label>
+                                        <select class="form-control" id="direction">
+                                            <option value="Horizontal">Horizontal</option>
+                                            <option value="Vertical">Vertical</option>
+                                        </select>
+                                        <br>
+                                        <label for="starter">Starter</label>
+                                        <select class="form-control" id="starter">
+                                            <option value="Treecko">Treecko</option>
+                                            <option value="Torchic">Torchic</option>
+                                            <option value="Mudkip">Mudkip</option>
+                                        </select>
+                                        <br>
+                                        <label for="johto_starter">Johto Starter</label>
+                                        <select class="form-control" id="johto_starter">
+                                            <option value="Chikorita">Chikorita</option>
+                                            <option value="Cyndaquil">Cyndaquil</option>
+                                            <option value="Totodile">Totodile</option>
+                                        </select>
+                                        <br>
+                                        <label for="fossil">Fossil</label>
+                                        <select class="form-control" id="fossil">
+                                            <option value="Anorith">Anorith</option>
+                                            <option value="Lileep">Lileep</option>
+                                        </select>
+                                        <br>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="deoxys_puzzle_solved" value="">
+                                            <label for="deoxys_puzzle_solved">Deoxys puzzle solved?</label>
+                                        </div>
+                                        <br>
                                     </div>
-                                    <br>
-                                    <label for="coords">Coords</label>
-                                    <textarea class="form-control" spellcheck="false" style="min-width:200px; max-width:200px; min-height: 100px; " id="direction" placeholder=""></textarea>
-                                    <br>
-                                    <label for="direction">Move Direction</label>
-                                    <select class="form-control" id="select-1">
-                                        <option value="red">Horizontal</option>
-                                        <option value="red">Vertical</option>
-                                    </select>
-                                    <br>
-                                    <label for="starter">Starter</label>
-                                    <select class="form-control" id="starter">
-                                        <option value="red">Treecko</option>
-                                        <option value="red">Torchic</option>
-                                        <option value="red">Mudkip</option>
-                                    </select>
-                                    <br>
-                                    <label for="johto-starter">Johto Starter</label>
-                                    <select class="form-control" id="johto-starter">
-                                        <option value="red">Chikorita</option>
-                                        <option value="red">Cyndaquil</option>
-                                        <option value="red">Totodile</option>
-                                    </select>
-                                    <br>
-                                    <label for="fossil">Fossil</label>
-                                    <select class="form-control" id="fossil">
-                                        <option value="red">Anorith</option>
-                                        <option value="red">Lileep</option>
-                                    </select>
-                                    <br>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="deoxys-puzzle-solved" value="">
-                                        <label for="deoxys-puzzle-solved">Deoxys puzzle solved?</label>
+                                    <div class="card">
+                                        <h2 class="content-title">Discord Integration</h2>
+                                        <input id="discord_webhook_url" type="text" class="form-control" placeholder="Webhook URL">
+                                        <br>
+                                        <select class="form-control" id="discord_ping_mode">
+                                            <option value="">No Ping</option>
+                                            <option value="Role">Role</option>
+                                            <option value="User">User</option>
+                                        </select>
+                                        <br>
+                                        <input id="discord_shiny_ping" type="text" class="form-control" placeholder="User/Role ID">
                                     </div>
-                                    <br>
-                                </div>
-                                <div class="card">
-                                    <h2 class="content-title">Discord Integration</h2>
-                                    <input id="discord-webhook-url" type="text" class="form-control" placeholder="Webhook URL">
-                                    <br>
-                                    <select class="form-control" id="discord-ping-mode">
-                                        <option value="red">No Ping</option>
-                                        <option value="red">Role</option>
-                                        <option value="red">User</option>
-                                    </select>
-                                    <br>
-                                    <input id="discord-shiny-ping" type="text" class="form-control" placeholder="User/Role ID">
-                                </div>
-                                <div class="card">
-                                    <h2 class="content-title">Logging</h2>
-                                    <label for="encounter-log-limit">Encounter Log Limit</label>
-                                    <input id="encounter-log-limit" min="1" type="number" class="form-control" placeholder="">
-                                    <br>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="csvlog" value="">
-                                        <label for="csvlog">Create CSV logs</label>
+                                    <div class="card">
+                                        <h2 class="content-title">Logging</h2>
+                                        <label for="encounter_log_limit">Encounter Log Limit</label>
+                                        <input id="encounter_log_limit" min="1" type="number" class="form-control" placeholder="">
+                                        <br>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="csvlog" value="">
+                                            <label for="csvlog">Create CSV logs</label>
+                                        </div>
+                                        <br>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="jsonlog" value="">
+                                            <label for="jsonlog">Create JSON logs</label>
+                                        </div>
+                                        <br>
+                                        <label for="log">Log Encounters</label>
+                                        <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="log" placeholder=""></textarea>
                                     </div>
-                                    <br>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="jsonlog" value="">
-                                        <label for="jsonlog">Create JSON logs</label>
-                                    </div>
-                                    <br>
-                                    <label for="log">Log Encounters</label>
-                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="log" placeholder=""></textarea>
-                                </div>
-                                <div class="card">
-                                    <h2 class="content-title">Other</h2>
-                                    <label for="control-map">Control map</label>
-                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 400px;" id="control-map" placeholder=""></textarea>
-                                    <br>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="do-realistic-hunt" value="">
-                                        <label for="do-realistic-hunt">Disable use of RAM reading for early resets</label>
+                                    <div class="card">
+                                        <h2 class="content-title">Other</h2>
+                                        <label for="control_map">Control map</label>
+                                        <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 400px;" id="control_map" placeholder=""></textarea>
+                                        <br>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="do_realistic_hunt" value="">
+                                            <label for="do_realistic_hunt">Disable use of RAM reading for early resets</label>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card">
-                                    <h2 class="content-title">Wild Battles</h2>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="cycle-lead-pokemon" value="">
-                                        <label for="cycle-lead-pokemon">Cycle exhausted lead Pokemon</label>
+                                <div class="col-6">
+                                    <div class="card">
+                                        <h2 class="content-title">Wild Battles</h2>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="cycle_lead_pokemon" value="">
+                                            <label for="cycle_lead_pokemon">Cycle exhausted lead Pokemon</label>
+                                        </div>
+                                        <br>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="save_game_after_catch" value="">
+                                            <label for="save_game_after_catch">Save game after catch</label>
+                                        </div>
+                                        <br>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="use_spore" value="">
+                                            <label for="use_spore">Use Spore to sleep targets</label>
+                                        </div>
+                                        <br>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="battle_others" value="">
+                                            <label for="battle_others">Battle non-targets</label>
+                                        </div>
+                                        <br>
+                                        <label for="catch">Target traits to catch</label>
+                                        <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="catch" placeholder=""></textarea>
+                                        <br>
+                                        <label for="pokeball_priority">Pokeball priority order</label>
+                                        <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="pokeball_priority" placeholder=""></textarea>
+                                        <br>
+                                        <label for="pokeball_override">Pokeball override</label>
+                                        <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 200px;" id="pokeball_override" placeholder=""></textarea>
+                                        <br>
+                                        <label for="banned_moves">Banned Moves</label>
+                                        <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 300px; " id="banned_moves" placeholder=""></textarea>
                                     </div>
-                                    <br>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="save-game-after-catch" value="">
-                                        <label for="save-game-after-catch">Save game after catch</label>
+                                    <div class="card">
+                                        <h2 class="content-title">Pickup</h2>
+                                        <div class="custom-switch">
+                                            <input type="checkbox" id="pickup" value="">
+                                            <label for="pickup">Collect pickup items after successful battle</label>
+                                        </div>
+                                        <br>
+                                        <label for="pickup_threshold">Pickup threshold</label>
+                                        <input id="pickup_threshold" style="width:100px" min="1" max="6" type="number" class="form-control">
                                     </div>
-                                    <br>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="use-spore" value="">
-                                        <label for="use-spore">Use Spore to sleep targets</label>
-                                    </div>
-                                    <br>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="battle-others" value="">
-                                        <label for="battle-others">Battle non-targets</label>
-                                    </div>
-                                    <br>
-                                    <label for="catch">Target traits to catch</label>
-                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="catch" placeholder=""></textarea>
-                                    <br>
-                                    <label for="pokeball-priority">Pokeball priority order</label>
-                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 100px;" id="pokeball-priority" placeholder=""></textarea>
-                                    <br>
-                                    <label for="pokeball-override">Pokeball override</label>
-                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 200px;" id="pokeball-override" placeholder=""></textarea>
-                                    <br>
-                                    <label for="banned-moves">Banned Moves</label>
-                                    <textarea class="form-control" spellcheck="false" style="min-width:300px; max-width:300px; min-height: 300px; " id="banned-moves" placeholder=""></textarea>
-                                </div>
-                                <div class="card">
-                                    <h2 class="content-title">Pickup</h2>
-                                    <div class="custom-switch">
-                                        <input type="checkbox" id="pickup" value="">
-                                        <label for="pickup">Collect pickup items after successful battle</label>
-                                    </div>
-                                    <br>
-                                    <label for="pickup-threshold">Pickup threshold</label>
-                                    <input id="pickup-threshold" style="width:100px" min="1" max="6" type="number" class="form-control">
                                 </div>
                             </div>
-                        </div>
+                        </fieldset>
                     </div>
                 </div>
             </div>

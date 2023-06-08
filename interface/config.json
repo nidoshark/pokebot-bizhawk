@@ -1,62 +1,4 @@
 {
-    "bot_mode": "Starters",
-    "path": [
-        [38, 6],
-        [39, 6]
-    ],
-    "direction": "Horizontal",
-    "starter": "Mudkip",
-    "johto_starter": "Cyndaquil",
-    "fossil": "Anorith",
-    "deoxys_puzzle_solved": false,
-    "manual_catch": false,
-    "use_spore": false,
-    "catch": [
-        "shinies",
-        "perfect_ivs",
-        "good_ivs"
-    ],
-    "battle_others": true,
-    "pokeball_priority": [
-        "ultra_ball",
-        "great_ball",
-        "poke_ball"
-    ],
-    "pokeball_override":
-    {
-        "Abra": [
-            "ultra_ball",
-            "great_ball"
-        ]
-    },
-    "cycle_lead_pokemon": true,
-    "save_game_after_catch": false,
-    "save_game_on_start": false,
-    "pickup": true,
-    "pickup_threshold": 2,
-    "encounter_log_limit": 100,
-    "log": [
-        "all_encounters",
-        "shiny_encounters"
-    ],
-    "control_map":
-    {
-        "a": "x",
-        "b": "z",
-        "l": "w",
-        "r": "e",
-        "up": "up",
-        "down": "down",
-        "right": "right",
-        "left": "left",
-        "select": "space",
-        "start": "enter",
-        "emu_screenshot": "f12",
-        "emu_reset_combo": [
-            "ctrl",
-            "r"
-        ]
-    },
     "banned_moves": [
         "None",
         "Bounce",
@@ -97,5 +39,72 @@
         "Explosion",
         "Memento"
     ],
-    "do_realistic_hunt": true
+    "battle_others": true,
+    "bot_mode": "move along path",
+    "catch": [
+        "shinies",
+        "perfect_ivs",
+        "good_ivs"
+    ],
+    "control_map": {
+        "a": "x",
+        "b": "z",
+        "down": "down",
+        "emu_reset_combo": [
+            "ctrl",
+            "r"
+        ],
+        "emu_screenshot": "f12",
+        "l": "w",
+        "left": "left",
+        "r": "e",
+        "right": "right",
+        "select": "space",
+        "start": "enter",
+        "up": "up"
+    },
+    "csvlog": true,
+    "cycle_lead_pokemon": true,
+    "deoxys_puzzle_solved": false,
+    "direction": "Horizontal",
+    "discord_ping_mode": "Role",
+    "discord_shiny_ping": "",
+    "discord_webhook_url": "",
+    "do_realistic_hunt": true,
+    "encounter_log_limit": "100",
+    "fossil": "Anorith",
+    "johto_starter": "Cyndaquil",
+    "jsonlog": false,
+    "log": [
+        "all_encounters",
+        "shiny_encounters"
+    ],
+    "path": [
+        [
+            19,
+            12
+        ],
+        [
+            19,
+            15
+        ]
+    ],
+    "pickup": true,
+    "pickup_threshold": "3",
+    "pokeball_override": {
+        "Abra": [
+            "ultra_ball",
+            "great_ball"
+        ]
+    },
+    "pokeball_priority": [
+        "premier_ball",
+        "ultra_ball",
+        "great_ball",
+        "poke_ball"
+    ],
+    "save_game_after_catch": true,
+    "save_game_on_start": false,
+    "starter": "Mudkip",
+    "use_spore": true
 }

@@ -175,7 +175,7 @@ def release_button(button: str): # Function to update the hold_input object
 def release_all_inputs(): # Function to release all keys in all input objects
     global press_input, hold_input
     debug_log.debug(f"Releasing all inputs...")
-
+    
     for button in ["A", "B", "L", "R", "Up", "Down", "Left", "Right", "Select", "Start", "Power"]:
         hold_input[button] = False
         hold_input_mmap.seek(0)
@@ -532,7 +532,20 @@ def follow_path(coords: list, run: bool = True, exit_when_stuck: bool = False):
     possibly_stuck = False
     direction = None
 
-    for x, y, *map_data in coords:
+    for data in coords:
+        if not can_loop():
+            return
+
+        x = data[0]
+        y = data[1]
+        map_data = []
+
+        if len(data) > 2:
+            if data[2].type() != tuple:
+                map_data = tuple(data[2])
+            else:
+                map_data = data[2]
+
         debug_log.info(f"Moving to: {x}, {y}")
 
         stuck_time = 0
@@ -541,13 +554,13 @@ def follow_path(coords: list, run: bool = True, exit_when_stuck: bool = False):
         if run:
             hold_button("B")
 
-        while True:
+        while can_loop():
             checkPaused()
 
             if direction != None:
                 release_button(direction)
 
-            if opponent_changed():
+            if opponent_changed() or not can_loop():
                 return
 
             last_pos = [trainer_info["posX"], trainer_info["posY"]]
@@ -668,7 +681,7 @@ def pickup_items(): # If using a team of Pokemon with the ability "pickup", this
 
         i += 1
 
-    if item_count < config["pickup_threshold"]:
+    if item_count < int(config["pickup_threshold"]):
         debug_log.info(f"Party has {item_count} item(s), won't collect until at threshold {config['pickup_threshold']}")
         return
 
@@ -785,7 +798,7 @@ def log_encounter(pokemon: dict):
         encounter_log["encounter_log"].append(log_obj)
 
         mon_stats["shiny_average"] = shiny_average
-        encounter_log["encounter_log"] = encounter_log["encounter_log"][-config["encounter_log_limit"]:]
+        encounter_log["encounter_log"] = encounter_log["encounter_log"][-int(config["encounter_log_limit"]):]
 
         write_file("stats/totals.json", json.dumps(stats, indent=4, sort_keys=True)) # Save stats file
         write_file("stats/encounter_log.json", json.dumps(encounter_log, indent=4, sort_keys=True)) # Save encounter log file
@@ -1269,34 +1282,35 @@ def httpServer(): # Run HTTP server to make data available via HTTP GET
         #    debug_log.info(request.get_json()) # TODO HTTP config handler
         #    response = jsonify({})
         #    return response
-
         @server.route('/bot_status', methods=['POST'])
         def post_bot_status():
             global bot_paused
 
-            bot_paused = request.get_data() == bytes("true", encoding="utf-8")
-            print(f"Bot paused set to {bot_paused}. Pausing at next opportunity...")
-            return 'Success'
+            new = request.get_data() == bytes("true", encoding="utf-8")
 
+            if bot_paused != new:
+                debug_log.info(f"Bot paused set to {bot_paused}. (Un)pausing at next opportunity...")
+                bot_paused = new
+            return 'Success'
         @server.route('/bot_status', methods=['GET'])
         def req_bot_status():
             paused = str(bot_paused).lower()
             return paused
-
         @server.route('/config', methods=['POST'])
         def post_config():
             try:
                 global config_updated, config
 
-                config = json.loads(request.get_json())
+                config = request.get_json()
                 write_file("interface/config.json", json.dumps(config, indent=4, sort_keys=True))
-
+                
                 debug_log.info("Updated config! Changes to the bot mode won't be applied until the next cycle.")
                 config_updated = True
                 return 'Success'
             except Exception as e:
                 debug_log.error(str(e))
-                debug_log.error("Couldn't update config! Is there an error in your syntax?")
+                debug_log.error("Couldn't update config! Is there an error in the syntax?")
+                # print(json.loads(request.get_json()))
                 return 'Fail'
         @server.route('/config', methods=['GET'])
         def req_config():
@@ -1314,7 +1328,9 @@ def checkPaused():
         debug_log.info("Bot paused. Unpause to resume functionality.")
 
         while bot_paused:
-            wait_frames(30)
+            wait_frames(60)
+        else:
+            return
 
 def mainLoop():
     global last_opponent_personality, config_updated
@@ -1333,7 +1349,7 @@ def mainLoop():
             checkPaused()
 
             if config_updated:
-                debug_log.info("Updated bot mode applied!")
+                debug_log.info(f"Updated bot mode ({config['bot_mode']}) applied!")
                 config_updated = False
 
             match config["bot_mode"]:
@@ -1533,8 +1549,8 @@ def mode_regiTrio():
         # Exit and re-enter
         press_button("B")
         follow_path([
-            (8, 21), 
-            (8, 11)
+            [8, 21], 
+            [8, 11]
         ])
 
 def mode_deoxysPuzzle(do_encounter: bool = True):
@@ -1561,43 +1577,43 @@ def mode_deoxysPuzzle(do_encounter: bool = True):
         emu_combo([delay, "A"])
 
         # Left
-        follow_path([(15, 14), (12, 14)])
+        follow_path([[15, 14], [12, 14]])
         emu_combo([delay, "Left", "A", delay])
 
         # Top
-        if retry_puzzle_if_stuck(follow_path([(15, 14), (15, 9)], True, True)): continue
+        if retry_puzzle_if_stuck(follow_path([[15, 14], [15, 9]], True, True)): continue
         emu_combo([delay, "Up", "A", delay])
 
         # Right
-        if retry_puzzle_if_stuck(follow_path([(15, 14), (18, 14)], True, True)): continue
+        if retry_puzzle_if_stuck(follow_path([[15, 14], [18, 14]], True, True)): continue
         emu_combo([delay, "Right", "A", delay])
 
         # Middle Left
-        if retry_puzzle_if_stuck(follow_path([(15, 14), (15, 11), (13, 11)], True, True)): continue
+        if retry_puzzle_if_stuck(follow_path([[15, 14], [15, 11], [13, 11]], True, True)): continue
         emu_combo([delay, "Left", "A", delay])
 
         # Middle Right
-        follow_path([(17, 11)])
+        follow_path([[7, 11]])
         emu_combo([delay, "Right", "A", delay])
 
         # Bottom
-        if retry_puzzle_if_stuck(follow_path([(15, 11), (15, 13)], True, True)): continue
+        if retry_puzzle_if_stuck(follow_path([[15, 11], [15, 13]], True, True)): continue
         emu_combo([delay, "Down", "A", delay])
 
         # Bottom Left
-        follow_path([(15, 14), (12, 14)])
+        follow_path([[15, 14], [12, 14]])
         emu_combo([delay, "Left", "A", delay])
 
         # Bottom Right
-        follow_path([(18, 14)])
+        follow_path([[18, 14]])
         emu_combo([delay, "Right", "A", delay])
 
         # Bottom
-        follow_path([(15, 14)])
+        follow_path([[15, 14]])
         emu_combo([delay, "Down", delay, "A", delay])
 
         # Center
-        if retry_puzzle_if_stuck(follow_path([(15, 11)], True, True)): continue
+        if retry_puzzle_if_stuck(follow_path([[15, 11]], True, True)): continue
 
         if not do_encounter:
             debug_log.info("Deoxys puzzle completed. Saving game and starting resets...")
@@ -1622,8 +1638,8 @@ def mode_deoxysPuzzle(do_encounter: bool = True):
 
         # Exit and re-enter
         follow_path([
-            (15, 99, (26, 59)), 
-            (8, -99, MapDataEnum.BIRTH_ISLAND.value)
+            [15, 99, [26, 59]], 
+            [8, -99, MapDataEnum.BIRTH_ISLAND.value]
         ])
 
 def mode_deoxysResets():
@@ -1690,7 +1706,7 @@ def mode_move_along_path():
         foe_personality = last_opponent_personality
 
         while foe_personality == last_opponent_personality:
-            follow_path([tuple(path)])
+            follow_path(path)
 
         identify_pokemon()
 
@@ -1719,7 +1735,7 @@ def mode_move_until_obstructed():
                     pos2 = None
                     continue
 
-                follow_path([(pos1[0], pos1[1]), (pos2[0], pos2[1])])
+                follow_path([[pos1[0], pos1[1]], [pos2[0], pos2[1]]])
             opponent_changed()
 
         identify_pokemon()
@@ -1760,12 +1776,18 @@ def mode_starters():
     while can_loop():
         release_all_inputs()
 
-        while trainer_info["state"] != GameState.OVERWORLD:
+        while trainer_info["state"] != GameState.OVERWORLD and can_loop():
             press_button("A")
 
+        if not can_loop():
+            break
+
         # Short delay between A inputs to prevent accidental selection confirmations
-        while trainer_info["state"] == GameState.OVERWORLD: 
+        while trainer_info["state"] == GameState.OVERWORLD and can_loop(): 
             emu_combo(["A", 10])
+
+        if not can_loop():
+            break
 
         # Press B to back out of an accidental selection when scrolling to chosen starter
         if choice == "mudkip":
@@ -1774,7 +1796,7 @@ def mode_starters():
         elif choice == "treecko":
             while not find_image("treecko.png"): 
                 emu_combo(["B", "Left"])
-
+        
         while emu_info["rngState"] in starter_frames["rngState"]:
             debug_log.debug(f"Already rolled on RNG state: {emu_info['rngState']}, waiting...")
         else:
@@ -1820,16 +1842,16 @@ def mode_rayquaza():
         # Exit and re-enter
         press_button("B")
         follow_path([
-            (14, 11), 
-            (12, 11), 
-            (12, 15), 
-            (16, 15), 
-            (16, -99, MapDataEnum.SKY_PILLAR_F.value),
-            (10, -99, MapDataEnum.SKY_PILLAR_G.value),
-            (12, 15), 
-            (12, 11), 
-            (14, 11), 
-            (14, 7)
+            [14, 11], 
+            [12, 11], 
+            [12, 15], 
+            [16, 15], 
+            [16, -99, MapDataEnum.SKY_PILLAR_F.value],
+            [10, -99, MapDataEnum.SKY_PILLAR_G.value],
+            [12, 15], 
+            [12, 11], 
+            [14, 11], 
+            [14, 7]
         ])
 
 def mode_groudon():
@@ -1839,23 +1861,23 @@ def mode_groudon():
         os._exit(1)
 
     while can_loop():
-        follow_path([(17, 26)])
+        follow_path([[17, 26]])
 
         identify_pokemon()
 
         # Exit and re-enter
         follow_path([
-            (7, 26), 
-            (7, 15), 
-            (9, 15), 
-            (9, 4), 
-            (5, 4), 
-            (5, 99, MapDataEnum.TERRA_CAVE.value), 
-            (14, -99, MapDataEnum.TERRA_CAVE_A.value), 
-            (9, 4), (9, 15), 
-            (7, 15), 
-            (7, 26), 
-            (11, 26)
+            [7, 26], 
+            [7, 15], 
+            [9, 15], 
+            [9, 4], 
+            [5, 4], 
+            [5, 99, MapDataEnum.TERRA_CAVE.value], 
+            [14, -99, MapDataEnum.TERRA_CAVE_A.value], 
+            [9, 4], [9, 15], 
+            [7, 15], 
+            [7, 26], 
+            [11, 26]
         ])
 
 def mode_kyogre():
@@ -1865,25 +1887,25 @@ def mode_kyogre():
         os._exit(1)
 
     while can_loop():
-        follow_path([(9, 26)])
+        follow_path([[9, 26]])
 
         identify_pokemon()
 
         # Exit and re-enter
         follow_path([
-            (9, 27), 
-            (18, 27), 
-            (18, 14), 
-            (14, 14), 
-            (14, 4), 
-            (20, 4), 
-            (20, 99, MapDataEnum.MARINE_CAVE.value), 
-            (14, -99, MapDataEnum.MARINE_CAVE_A.value), 
-            (14, 4), 
-            (14, 14), 
-            (18, 14), 
-            (18, 27), 
-            (14, 27)
+            [9, 27], 
+            [18, 27], 
+            [18, 14], 
+            [14, 14], 
+            [14, 4], 
+            [20, 4], 
+            [20, 99, MapDataEnum.MARINE_CAVE.value], 
+            [14, -99, MapDataEnum.MARINE_CAVE_A.value], 
+            [14, 4], 
+            [14, 14], 
+            [18, 14], 
+            [18, 27], 
+            [14, 27]
         ])
 
 def mode_farawayMew():
@@ -1896,16 +1918,16 @@ def mode_farawayMew():
         # Enter main area
         while player_on_map(MapDataEnum.FARAWAY_ISLAND.value):
             follow_path([
-                (22, 8),
-                (22, -99, MapDataEnum.FARAWAY_ISLAND_A.value)
+                [22, 8],
+                [22, -99, MapDataEnum.FARAWAY_ISLAND_A.value]
             ])
         
         wait_frames(30)
         hold_button("B")
         
         follow_path([
-            (trainer_info["posX"], 16),
-            (16, 16)
+            [trainer_info["posX"], 16],
+            [16, 16]
         ])
         # 
         # Follow Mew up while mashing A
@@ -1922,9 +1944,9 @@ def mode_farawayMew():
 
         # Exit to entrance area
         follow_path([
-            (16, 16),
-            (12, 16),
-            (12, 99, MapDataEnum.FARAWAY_ISLAND.value)
+            [16, 16],
+            [12, 16],
+            [12, 99, MapDataEnum.FARAWAY_ISLAND.value]
         ])
 
 def mode_southernIsland():
@@ -1946,8 +1968,8 @@ def mode_southernIsland():
         # Exit and re-enter
         press_button("B")
         follow_path([
-            (13, 99, MapDataEnum.SOUTHERN_ISLAND.value), 
-            (14, -99, MapDataEnum.SOUTHERN_ISLAND_A.value)
+            [13, 99, MapDataEnum.SOUTHERN_ISLAND.value], 
+            [14, -99, MapDataEnum.SOUTHERN_ISLAND_A.value]
         ])
 
 def mode_buyPremierBalls():
