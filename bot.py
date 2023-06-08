@@ -127,7 +127,6 @@ def frames_to_ms(frames: float):
     return max((frames/60.0) / emu_speed, 0.02)
 
 def press_button(button: str): # Function to update the press_input object
-    checkPaused()
     global g_current_index
 
     match button:
@@ -155,7 +154,6 @@ def press_button(button: str): # Function to update the press_input object
         g_current_index = 0
 
 def hold_button(button: str): # Function to update the hold_input object
-    checkPaused()
     global hold_input
     debug_log.debug(f"Holding: {button}...")
 
@@ -164,7 +162,6 @@ def hold_button(button: str): # Function to update the hold_input object
     hold_input_mmap.write(bytes(json.dumps(hold_input), encoding="utf-8"))
 
 def release_button(button: str): # Function to update the hold_input object
-    checkPaused()
     global hold_input
     debug_log.debug(f"Releasing: {button}...")
 
@@ -192,7 +189,7 @@ def opponent_changed(): # This function checks if there is a different opponent 
         if opponent_info and last_opponent_personality != opponent_info["personality"]:
             debug_log.info(f"Opponent has changed! Previous PID: {last_opponent_personality}, New PID: {opponent_info['personality']}")
             last_opponent_personality = opponent_info["personality"]
-            return True    
+            return True
     except Exception as e:
         if args.d: debug_log.exception(str(e))
         return False
@@ -380,12 +377,13 @@ def battle(): # Function to battle wild pokemon
     foe_fainted = False
 
     while not ally_fainted and not foe_fainted and trainer_info["state"] != GameState.OVERWORLD:
-        checkPaused()
+        if checkPaused(): return
 
         debug_log.info("Navigating to the FIGHT button...")
 
         while not find_image("battle/fight.png") and trainer_info["state"] != GameState.OVERWORLD:
             emu_combo(["B", 10, "Up", 10, "Left", 10]) # Press B + up + left until FIGHT menu is visible
+            if checkPaused(): return
         
         if trainer_info["state"] == GameState.OVERWORLD:
             return True
@@ -421,6 +419,7 @@ def battle(): # Function to battle wild pokemon
         while trainer_info["state"] != GameState.OVERWORLD and not find_image("battle/fight.png"):
             press_button("B")
             wait_frames(1)
+            if checkPaused(): return
         
         ally_fainted = party_info[0]["hp"] == 0
         foe_fainted = opponent_info["hp"] == 0
@@ -438,8 +437,6 @@ def is_valid_move(move: dict):
     return not move["name"] in config["banned_moves"] and move["power"] > 0
 
 def find_effective_move(ally: dict, foe: dict):
-    checkPaused()
-
     i = 0
     move_power = []
 
@@ -480,13 +477,15 @@ def find_effective_move(ally: dict, foe: dict):
     }
 
 def flee_battle(): # Function to run from wild pokemon
-    checkPaused()
+    if checkPaused(): return
     try:
         debug_log.info("Running from battle...")
         while trainer_info["state"] != GameState.OVERWORLD:
             while not find_image("battle/run.png") and trainer_info["state"] != GameState.OVERWORLD: 
+                if checkPaused(): return
                 emu_combo(["Right", 5, "Down", "B", 5])
             while find_image("battle/run.png") and trainer_info["state"] != GameState.OVERWORLD: 
+                if checkPaused(): return
                 press_button("A")
             press_button("B")
         wait_frames(30) # Wait for battle fade animation
@@ -505,6 +504,7 @@ def run_until_obstructed(direction: str, run: bool = True): # Function to run un
 
     dir_unchanged = 0
     while dir_unchanged < move_speed:
+        if checkPaused(): return
         if run: 
             hold_button("B")
         
@@ -533,9 +533,7 @@ def follow_path(coords: list, run: bool = True, exit_when_stuck: bool = False):
     direction = None
 
     for data in coords:
-        if not can_loop():
-            return
-
+        if checkPaused() or opponent_changed(): return
         x = data[0]
         y = data[1]
         map_data = []
@@ -554,13 +552,11 @@ def follow_path(coords: list, run: bool = True, exit_when_stuck: bool = False):
         if run:
             hold_button("B")
 
-        while can_loop():
-            checkPaused()
-
+        while not checkPaused():
             if direction != None:
                 release_button(direction)
 
-            if opponent_changed() or not can_loop():
+            if opponent_changed():
                 return
 
             last_pos = [trainer_info["posX"], trainer_info["posY"]]
@@ -667,7 +663,7 @@ def pickup_items(): # If using a team of Pokemon with the ability "pickup", this
 
     i = 0
     while i < party_size:
-        checkPaused()
+        if checkPaused(): return
 
         pokemon = party_info[i]
         held_item = pokemon['heldItem']
@@ -943,7 +939,7 @@ def mon_is_desirable(pokemon: dict):
     return False
 
 def identify_pokemon(starter: bool = False): # Identify opponent pokemon and incremement statistics, returns True if shiny, else False
-    checkPaused()
+    if checkPaused(): return
     legendary_hunt = config["bot_mode"] in ["manual", "rayquaza", "kyogre", "groudon", "southern island", "regi trio", "deoxys resets", "deoxys runaways", "mew"]
 
     debug_log.info("Identifying Pokemon...")
@@ -1289,8 +1285,8 @@ def httpServer(): # Run HTTP server to make data available via HTTP GET
             new = request.get_data() == bytes("true", encoding="utf-8")
 
             if bot_paused != new:
-                debug_log.info(f"Bot paused set to {bot_paused}. (Un)pausing at next opportunity...")
                 bot_paused = new
+                debug_log.info(f"Bot paused set to {bot_paused}. (Un)pausing at next opportunity...")
             return 'Success'
         @server.route('/bot_status', methods=['GET'])
         def req_bot_status():
@@ -1321,16 +1317,16 @@ def httpServer(): # Run HTTP server to make data available via HTTP GET
     except Exception as e: debug_log.exception(str(e))
 
 def checkPaused():
-    global config_updated
-    # Wait to be unpaused in 1/2 second intervals
     if bot_paused:
         release_all_inputs()
         debug_log.info("Bot paused. Unpause to resume functionality.")
 
+        # Wait to be unpaused in 1/2 second intervals
         while bot_paused:
             wait_frames(60)
-        else:
-            return
+
+        print(f"!!!!{config_updated}")
+    return config_updated
 
 def mainLoop():
     global last_opponent_personality, config_updated
@@ -1451,9 +1447,6 @@ def mode_johtoStarters():
 
     collect_gift_mon(config["johto_starter"])
 
-def can_loop():
-    return not bot_paused and not config_updated
-
 def collect_gift_mon(target: str):
     rng_frames = get_rngState(trainer_info["tid"], target)
     party_size = len(party_info)
@@ -1462,7 +1455,7 @@ def collect_gift_mon(target: str):
         debug_log.info("Please leave at least one party slot open, then restart the script.")
         os._exit(1)
 
-    while can_loop():
+    while not checkPaused():
         # Button mash through intro/title
         while trainer_info["state"] != GameState.OVERWORLD:
             press_button("A")
@@ -1478,6 +1471,7 @@ def collect_gift_mon(target: str):
 
             press_button("A")
             wait_frames(5)
+            if checkPaused(): return
         
         rng_frames["rngState"].append(emu_info["rngState"])
         write_file(f"stats/{trainer_info['tid']}/{target.lower()}.json", json.dumps(rng_frames, indent=4, sort_keys=True))
@@ -1537,7 +1531,7 @@ def mode_regiTrio():
         debug_log.info("Please place the player below the target Regi in Desert Ruins, Island Cave or Ancient Tomb, then restart the script.")
         os._exit(1)
 
-    while can_loop():
+    while not checkPaused():
         while not opponent_changed():
             emu_combo(["Up", "A"])
 
@@ -1565,7 +1559,7 @@ def mode_deoxysPuzzle(do_encounter: bool = True):
 
     delay = 4
 
-    while can_loop():
+    while not checkPaused():
         while not trainer_info["state"] == GameState.OVERWORLD:
             emu_combo(["A", 8])
 
@@ -1649,7 +1643,7 @@ def mode_deoxysResets():
 
     deoxys_frames = get_rngState(trainer_info["tid"], "deoxys")
 
-    while can_loop():
+    while True:
         # Mash A to reach overworld from intro/title
         while trainer_info["state"] != GameState.OVERWORLD:
             emu_combo(["A", 8])
@@ -1702,26 +1696,30 @@ def mode_bunnyHop():
 def mode_move_along_path():
     path = config["path"]
 
-    while can_loop():
+    while not checkPaused():
         foe_personality = last_opponent_personality
 
+        debug_log.info("Moving along path...")
         while foe_personality == last_opponent_personality:
+            if checkPaused(): return
             follow_path(path)
 
         identify_pokemon()
 
         while trainer_info["state"] != GameState.OVERWORLD:
-            continue
+            if checkPaused(): return
+            wait_frames(1)
 
 def mode_move_until_obstructed():
     direction = config["direction"].lower()
 
-    while can_loop():
+    while not checkPaused():
         pos1, pos2 = None, None
         foe_personality = last_opponent_personality
         debug_log.info(f"Pathing {direction} until obstructed...")
 
         while foe_personality == last_opponent_personality:
+            if checkPaused(): return
             if pos1 == None or pos2 == None:
                 if direction == "horizontal":
                     pos1 = run_until_obstructed("Left")
@@ -1741,7 +1739,8 @@ def mode_move_until_obstructed():
         identify_pokemon()
 
         while trainer_info["state"] != GameState.OVERWORLD:
-            continue
+            if checkPaused(): return
+            wait_frames(1)
 
 def mode_fishing():
     debug_log.info(f"Fishing...")
@@ -1773,21 +1772,15 @@ def mode_starters():
 
     debug_log.info(f"Soft resetting starter Pokemon...")
     
-    while can_loop():
+    while True:
         release_all_inputs()
 
-        while trainer_info["state"] != GameState.OVERWORLD and can_loop():
+        while trainer_info["state"] != GameState.OVERWORLD:
             press_button("A")
 
-        if not can_loop():
-            break
-
         # Short delay between A inputs to prevent accidental selection confirmations
-        while trainer_info["state"] == GameState.OVERWORLD and can_loop(): 
+        while trainer_info["state"] == GameState.OVERWORLD: 
             emu_combo(["A", 10])
-
-        if not can_loop():
-            break
 
         # Press B to back out of an accidental selection when scrolling to chosen starter
         if choice == "mudkip":
@@ -1829,7 +1822,7 @@ def mode_rayquaza():
         debug_log.info("Please place the player below Rayquaza at the Sky Pillar and restart the script.")
         os._exit(1)
 
-    while can_loop():
+    while True:
         while not opponent_changed():
             emu_combo(["A", "Up"]) # Walk up toward Rayquaza while mashing A
         
@@ -1860,7 +1853,7 @@ def mode_groudon():
         debug_log.info("Please place the player below Groudon in Terra Cave and restart the script.")
         os._exit(1)
 
-    while can_loop():
+    while True:
         follow_path([[17, 26]])
 
         identify_pokemon()
@@ -1886,7 +1879,7 @@ def mode_kyogre():
         debug_log.info("Please place the player below Kyogre in Marine Cave and restart the script.")
         os._exit(1)
 
-    while can_loop():
+    while True:
         follow_path([[9, 26]])
 
         identify_pokemon()
@@ -1914,7 +1907,7 @@ def mode_farawayMew():
         os._exit(1)
         return
 
-    while can_loop():
+    while True:
         # Enter main area
         while player_on_map(MapDataEnum.FARAWAY_ISLAND.value):
             follow_path([
@@ -1955,7 +1948,7 @@ def mode_southernIsland():
         debug_log.info("Please place the player below the sphere on Southern Island and restart the script.")
         os._exit(1)
 
-    while can_loop():
+    while True:
         while not opponent_changed():
             emu_combo(["A", "Up"])
 
